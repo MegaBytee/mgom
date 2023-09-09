@@ -1,5 +1,7 @@
 package mgom
 
+import "fmt"
+
 type ErrorCode int
 
 // tags
@@ -16,7 +18,14 @@ const (
 
 func handleErrors(tag ErrorCode, err error) int {
 	if err != nil {
-		return int(tag)
+		fmt.Println("err=", err)
+		switch tag {
+		case SAVE:
+			return 0
+		default:
+			return int(tag)
+		}
+
 	}
 	return 0
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	paginate "github.com/gobeam/mongo-go-pagination"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,11 +19,19 @@ type Document struct {
 }
 
 func (d *Document) SetFields(f primitive.D) *Document {
+	if f == nil {
+		d.fields = bson.D{}
+		return d
+	}
 	d.fields = f
 	return d
 }
 
 func (d *Document) SetFilter(f primitive.D) *Document {
+	if f == nil {
+		d.filter = bson.D{}
+		return d
+	}
 	d.filter = f
 	return d
 }
@@ -46,9 +55,9 @@ func NewDocument(c *Collection) *Document {
 
 }
 
-func (d *Document) Count() (int64, int) {
+func (d *Document) CountAll() (int64, int) {
 	opts := options.Count().SetHint("_id_")
-	count, err := d.collection.CountDocuments(context.TODO(), d.filter, opts)
+	count, err := d.collection.CountDocuments(context.Background(), bson.D{}, opts)
 
 	return count, handleErrors(COUNT, err)
 }
@@ -102,6 +111,6 @@ func (d *Document) Incr(key string, value string) int {
 		Kv:    KV{Key: key, Value: value},
 	}
 
-	d.dUpdate = q.NewQuery()
+	d.dUpdate = q.Get()
 	return d.Update()
 }

@@ -25,7 +25,7 @@ type Query struct {
 	Kv    KV
 }
 
-func (q *Query) NewQuery() primitive.D {
+func (q *Query) Get() primitive.D {
 	x := bson.D{}
 	switch q.QType {
 	case QFilter:

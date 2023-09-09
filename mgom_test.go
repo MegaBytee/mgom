@@ -218,7 +218,7 @@ func TestGetDocuments(t *testing.T) {
 				Kv:    KV{Key: "key", Value: "test2"},
 			}
 			var log Log
-			err := NewDocument(LOGS).SetFilter(filter.Get()).SetFields(nil).Get().Decode(&log)
+			err := NewDocument(LOGS).SetFilter(filter.Get()).Get().Decode(&log)
 			So(err, ShouldEqual, nil)
 			So(log.Key, ShouldEqual, "test2")
 			So(log.Value, ShouldEqual, "value2")
@@ -245,6 +245,22 @@ func TestDeleteDocuments(t *testing.T) {
 		})
 
 		//TODO for other collections is the same
+
+	})
+}
+
+// testing paginate
+func TestPaginateDocuments(t *testing.T) {
+	Convey("Should be able to get paginate documents in posts \n", t, func() {
+
+		posts := []Post{}
+		pagination := NewDocument(POSTS).Paginate(10, 1, &posts)
+		fmt.Println(posts)
+
+		So(pagination.Total, ShouldEqual, 2)
+		for _, k := range posts {
+			fmt.Println(k)
+		}
 
 	})
 }

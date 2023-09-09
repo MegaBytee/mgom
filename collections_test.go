@@ -2,7 +2,7 @@ package mgom
 
 //declarative test file for all collections that will use in the mgom_test :
 
-//collection : logs
+// collection : logs
 type Log struct {
 	Key   string
 	Value string
@@ -17,7 +17,7 @@ var log_index = []IndexFactory{
 	},
 }
 
-//collection : posts
+// collection : posts
 type Post struct {
 	PostId string `bson:"post_id" json:"post_id"`
 	Author string
@@ -42,7 +42,7 @@ var post_index = []IndexFactory{
 	},
 }
 
-//collection : tags
+// collection : tags
 type Tag struct {
 	Value string
 	Count int

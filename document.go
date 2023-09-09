@@ -51,7 +51,7 @@ func (d *Document) SetCollection(c *Collection) *Document {
 
 func NewDocument(c *Collection) *Document {
 	d := &Document{}
-	return d.SetCollection(c)
+	return d.SetCollection(c).SetFields(nil).SetFilter(nil)
 
 }
 
@@ -77,6 +77,14 @@ func (d *Document) PaginateWithSelect(limit, page int64) paginate.PagingQuery {
 func (d *Document) Get() *mongo.SingleResult {
 	opts := options.FindOne().SetProjection(d.fields)
 	return d.collection.FindOne(context.TODO(), d.filter, opts)
+}
+
+func (d *Document) Paginate(limit, page int64, x any) paginate.PaginationData {
+
+	paginatedData, err := d.PaginateWithSelect(limit, page).Decode(x).Find()
+	handleErrors(PAGINATE, err)
+	return paginatedData.Pagination
+
 }
 
 // check if docs already saved in database

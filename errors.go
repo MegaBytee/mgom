@@ -14,6 +14,7 @@ const (
 	UPDATE                              //105
 	DELETE                              //106
 	GET_CURSOR                          //107
+	PAGINATE                            //108
 )
 
 func handleErrors(tag ErrorCode, err error) int {

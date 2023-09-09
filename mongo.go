@@ -13,13 +13,14 @@ import (
 
 // MongoInstance contains the Mongo client and database objects
 type MongoInstance struct {
-	DbName    string
-	BaseUrl   string
-	Uri       string
-	Context   context.Context
-	Client    *mongo.Client
-	Db        *mongo.Database
-	Connected bool
+	DbName      string
+	BaseUrl     string
+	Uri         string
+	Context     context.Context
+	Client      *mongo.Client
+	Db          *mongo.Database
+	Collections *int
+	Connected   bool
 }
 
 func (mg *MongoInstance) SetDbName(value string) *MongoInstance {
@@ -34,6 +35,15 @@ func (mg *MongoInstance) SetBaseUrl(value string) *MongoInstance {
 func (mg *MongoInstance) SetUri() *MongoInstance {
 	mg.Uri = mg.BaseUrl + mg.DbName
 	return mg
+}
+func (mg *MongoInstance) SetCollection(c *Collection) *MongoInstance {
+	if mg.Collections == nil {
+		mg.Collections = new(int)
+		*mg.Collections = 0
+	}
+	*mg.Collections++
+	return mg
+
 }
 func (mg *MongoInstance) GetCollection(value string) *mongo.Collection {
 	return mg.Db.Collection(value)

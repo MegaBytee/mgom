@@ -2,7 +2,6 @@ package mgom
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -55,25 +54,29 @@ func (x *IndexFactory) CreateIndex(c *Collection) int {
 	code := 0
 	switch x.T {
 	case IdxUNIQUE:
-		fmt.Println("im here, create_index, indexfactory, unique")
+		//fmt.Println("im here, create_index, indexfactory, unique", c)
 		for v := range x.Values {
 			idx := IndexUnique{
 				key:   v,
 				value: StringToBool(x.Values[v]),
 			}
 			idx.Set()
+			//fmt.Println(" unique index, idx=", idx)
 			code = createIndex(idx.mIndex, c)
 		}
 
 		return code
 	case IdxTEXT:
-		fmt.Println("im here, create_index, indexfactory, text")
+		//fmt.Println("im here, create_index, indexfactory, text", c)
 		for v := range x.Values {
+
 			idx := IndexText{
 				key:    v,
 				weight: StringToInt(x.Values[v]),
 			}
+
 			idx.Set()
+			//fmt.Println(" text index, idx=", idx)
 			code = createIndex(idx.mIndex, c)
 		}
 		return code
@@ -86,8 +89,8 @@ func (x *IndexFactory) CreateIndex(c *Collection) int {
 }
 
 func createIndex(x mongo.IndexModel, c *Collection) int {
-	fmt.Print("createIndex c=>", c)
-	fmt.Print("createIndex x=>", x)
+	//fmt.Print("createIndex c=>", c)
+	//fmt.Print("createIndex x=>", x)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var err error

@@ -1,8 +1,6 @@
 package mgom
 
 import (
-	"fmt"
-
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -14,11 +12,12 @@ type Collection struct {
 
 func (c *Collection) SetIndex(idx []IndexFactory) *Collection {
 	c.Index = idx
+	c.Mg.SetCollection(c)
 	return c
 }
 
 func (c *Collection) GetCollection() *mongo.Collection {
-	fmt.Print("GetCollection=", c.Name)
+	//fmt.Print("GetCollection=", c.Name)
 	return c.Mg.GetCollection(c.Name)
 }
 

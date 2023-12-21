@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-//testing
 // when you run test first time, delete the testing database manualy in mongodb to avoid test failure for the second time because of duplicate key index
 // simple example test
 // TODO all testing cases with goconvey

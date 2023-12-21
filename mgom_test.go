@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// when you run test first time, delete the testing database manualy in mongodb to avoid test failure for the second time because of duplicate key index
 // simple example test
 // TODO all testing cases with goconvey
 
@@ -24,16 +25,23 @@ var (
 	POSTS *Collection
 )
 
+var ok = Error{
+	Code: 0,
+	Msg:  "Ok",
+}
+
 func TestConnection(t *testing.T) {
 
 	Convey("Should be able to create new mongo instance and connect to it", t, func() {
 		Mg = NewMongoInstance(DB_NAME, DB_URL)
 		//connect
-		Mg.Connect()
+		x := Mg.Connect()
+		fmt.Println("mg=", Mg)
+		So(x, ShouldEqual, ok)
 		So(Mg.Connected, ShouldEqual, true)
 		Convey("Should be able to get database list", func() {
 			status := Mg.ListDatabaseNames()
-			So(status, ShouldEqual, 0)
+			So(status, ShouldEqual, ok)
 		})
 
 	})
@@ -45,18 +53,18 @@ func TestCollections(t *testing.T) {
 		fmt.Println(Mg)
 
 		LOGS = NewCollection("logs", Mg).SetIndex(log_index)
-		code := LOGS.CreateIndex()
-		So(code, ShouldEqual, 0)
+		status := LOGS.CreateIndex()
+		So(status, ShouldEqual, ok)
 		TAGS = NewCollection("tags", Mg).SetIndex(tag_index)
-		code = TAGS.CreateIndex()
-		So(code, ShouldEqual, 0)
+		status = TAGS.CreateIndex()
+		So(status, ShouldEqual, ok)
 		POSTS = NewCollection("posts", Mg).SetIndex(post_index)
-		code = POSTS.CreateIndex()
-		So(code, ShouldEqual, 0)
+		status = POSTS.CreateIndex()
+		So(status, ShouldEqual, ok)
 
 		Convey("Check mongo instance that have 3 registred collections", func() {
 
-			So(*Mg.Collections, ShouldEqual, 3)
+			So(status, ShouldEqual, ok)
 		})
 
 	})
@@ -82,7 +90,7 @@ func TestSaveDocuments(t *testing.T) {
 
 			for _, k := range data {
 				x := NewDocument(LOGS).SetData(k).Save()
-				So(x, ShouldEqual, 0)
+				So(x, ShouldEqual, ok)
 			}
 
 		})
@@ -101,7 +109,7 @@ func TestSaveDocuments(t *testing.T) {
 
 			for _, k := range data {
 				x := NewDocument(TAGS).SetData(k).Save()
-				So(x, ShouldEqual, 0)
+				So(x, ShouldEqual, ok)
 			}
 
 		})
@@ -126,7 +134,7 @@ func TestSaveDocuments(t *testing.T) {
 
 			for _, k := range data {
 				x := NewDocument(POSTS).SetData(k).Save()
-				So(x, ShouldEqual, 0)
+				So(x, ShouldEqual, ok)
 			}
 
 		})
@@ -140,13 +148,13 @@ func TestCountDocuments(t *testing.T) {
 		//count all logs:
 		count, x := NewDocument(LOGS).CountAll()
 		fmt.Println(count)
-		So(x, ShouldEqual, 0)
+		So(x, ShouldEqual, ok)
 		count, x = NewDocument(POSTS).CountAll()
 		fmt.Println(count)
-		So(x, ShouldEqual, 0)
+		So(x, ShouldEqual, ok)
 		count, x = NewDocument(TAGS).CountAll()
 		fmt.Println(count)
-		So(x, ShouldEqual, 0)
+		So(x, ShouldEqual, ok)
 	})
 }
 
@@ -183,7 +191,7 @@ func TestUpdateDocuments(t *testing.T) {
 				},
 			}
 			x := NewDocument(LOGS).SetFilter(filter.Get()).SetUpdate(data.Get()).Update()
-			So(x, ShouldEqual, 0)
+			So(x, ShouldEqual, ok)
 
 		})
 		Convey("update title document post_id='p1' in posts", func() {
@@ -198,11 +206,11 @@ func TestUpdateDocuments(t *testing.T) {
 				},
 			}
 			x := NewDocument(POSTS).SetFilter(filter.Get()).SetUpdate(data.Get()).Update()
-			So(x, ShouldEqual, 0)
+			So(x, ShouldEqual, ok)
 
 			//incr views
 			x = NewDocument(POSTS).SetFilter(filter.Get()).Incr("views", "1")
-			So(x, ShouldEqual, 0)
+			So(x, ShouldEqual, ok)
 
 		})
 
@@ -240,7 +248,7 @@ func TestDeleteDocuments(t *testing.T) {
 			}
 
 			x := NewDocument(TAGS).SetFilter(filter.Get()).Delete()
-			So(x, ShouldEqual, 0)
+			So(x, ShouldEqual, ok)
 
 		})
 
@@ -254,13 +262,13 @@ func TestPaginateDocuments(t *testing.T) {
 	Convey("Should be able to get paginate documents in posts \n", t, func() {
 
 		posts := []Post{}
-		pagination := NewDocument(POSTS).Paginate(10, 1, &posts)
+		pagination, x := NewDocument(POSTS).Paginate(10, 1, &posts)
 		fmt.Println(posts)
 
 		So(pagination.Total, ShouldEqual, 2)
 		for _, k := range posts {
 			fmt.Println(k)
 		}
-
+		So(x, ShouldEqual, ok)
 	})
 }

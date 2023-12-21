@@ -11,16 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const Version = "0.0.2"
+
 // MongoInstance contains the Mongo client and database objects
 type MongoInstance struct {
-	DbName      string
-	BaseUrl     string
-	Uri         string
-	Context     context.Context
-	Client      *mongo.Client
-	Db          *mongo.Database
-	Collections *int
-	Connected   bool
+	DbName    string
+	BaseUrl   string
+	Uri       string
+	Context   context.Context
+	Client    *mongo.Client
+	Db        *mongo.Database
+	Connected bool
 }
 
 func (mg *MongoInstance) SetDbName(value string) *MongoInstance {
@@ -36,15 +37,7 @@ func (mg *MongoInstance) SetUri() *MongoInstance {
 	mg.Uri = mg.BaseUrl + mg.DbName
 	return mg
 }
-func (mg *MongoInstance) SetCollection(c *Collection) *MongoInstance {
-	if mg.Collections == nil {
-		mg.Collections = new(int)
-		*mg.Collections = 0
-	}
-	*mg.Collections++
-	return mg
 
-}
 func (mg *MongoInstance) GetCollection(value string) *mongo.Collection {
 	return mg.Db.Collection(value)
 
@@ -57,7 +50,7 @@ func NewMongoInstance(dbName, baseUrl string) *MongoInstance {
 	return mg.SetDbName(dbName).SetBaseUrl(baseUrl).SetUri()
 }
 
-func (mg *MongoInstance) Connect() int {
+func (mg *MongoInstance) Connect() Error {
 
 	var err error
 	var cancel context.CancelFunc
@@ -69,15 +62,13 @@ func (mg *MongoInstance) Connect() int {
 
 	mg.Db = mg.Client.Database(mg.DbName)
 	//mg.ListDatabaseNames()
-	code := handleErrors(CONNECT, err)
-	if code == 0 {
-		//connected
-		mg.Connected = true
-	}
-	return code
+	mg.Connected = true
+
+	return handleErrors(CONNECT, err)
+
 }
 
-func (mg *MongoInstance) ListDatabaseNames() int {
+func (mg *MongoInstance) ListDatabaseNames() Error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	databases, err := mg.Client.ListDatabaseNames(ctx, bson.M{})

@@ -12,12 +12,10 @@ type Collection struct {
 
 func (c *Collection) SetIndex(idx []IndexFactory) *Collection {
 	c.Index = idx
-	c.Mg.SetCollection(c)
 	return c
 }
 
 func (c *Collection) GetCollection() *mongo.Collection {
-	//fmt.Print("GetCollection=", c.Name)
 	return c.Mg.GetCollection(c.Name)
 }
 
@@ -29,11 +27,11 @@ func NewCollection(name string, mg *MongoInstance) *Collection {
 	return c
 }
 
-func (c *Collection) CreateIndex() int {
+func (c *Collection) CreateIndex() Error {
 
-	code := 0
+	err := Error{}
 	for v := range c.Index {
-		code = c.Index[v].CreateIndex(c)
+		err = c.Index[v].CreateIndex(c)
 	}
-	return code
+	return err
 }

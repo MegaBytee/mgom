@@ -50,8 +50,11 @@ type IndexFactory struct {
 	Values map[string]string
 }
 
-func (x *IndexFactory) CreateIndex(c *Collection) int {
-	code := 0
+func (x *IndexFactory) CreateIndex(c *Collection) Error {
+	err := Error{
+		Code: -1,
+		Msg:  "init",
+	}
 	switch x.T {
 	case IdxUNIQUE:
 		//fmt.Println("im here, create_index, indexfactory, unique", c)
@@ -62,10 +65,9 @@ func (x *IndexFactory) CreateIndex(c *Collection) int {
 			}
 			idx.Set()
 			//fmt.Println(" unique index, idx=", idx)
-			code = createIndex(idx.mIndex, c)
+			err = createIndex(idx.mIndex, c)
 		}
 
-		return code
 	case IdxTEXT:
 		//fmt.Println("im here, create_index, indexfactory, text", c)
 		for v := range x.Values {
@@ -77,18 +79,16 @@ func (x *IndexFactory) CreateIndex(c *Collection) int {
 
 			idx.Set()
 			//fmt.Println(" text index, idx=", idx)
-			code = createIndex(idx.mIndex, c)
+			err = createIndex(idx.mIndex, c)
 		}
-		return code
-
-	default:
-		return -1
 
 	}
 
+	return err
+
 }
 
-func createIndex(x mongo.IndexModel, c *Collection) int {
+func createIndex(x mongo.IndexModel, c *Collection) Error {
 	//fmt.Print("createIndex c=>", c)
 	//fmt.Print("createIndex x=>", x)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

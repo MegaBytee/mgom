@@ -55,14 +55,14 @@ func NewDocument(c *Collection) *Document {
 
 }
 
-func (d *Document) CountAll() (int64, int) {
+func (d *Document) CountAll() (int64, Error) {
 	opts := options.Count().SetHint("_id_")
 	count, err := d.collection.CountDocuments(context.Background(), bson.D{}, opts)
 
 	return count, handleErrors(COUNT, err)
 }
 
-func (d *Document) GetCursor(limit int64) (*mongo.Cursor, int) {
+func (d *Document) GetCursor(limit int64) (*mongo.Cursor, Error) {
 	opts := options.Find().SetLimit(limit)
 	cursor, err := d.collection.Find(context.TODO(), d.filter, opts)
 	return cursor, handleErrors(GET_CURSOR, err)
@@ -73,18 +73,17 @@ func (d *Document) PaginateWithSelect(limit, page int64) paginate.PagingQuery {
 	return paginate.New(d.collection).Context(context.TODO()).Limit(limit).Page(page).Select(d.fields).Filter(d.filter)
 
 }
+func (d *Document) Paginate(limit, page int64, x any) (paginate.PaginationData, Error) {
+
+	paginatedData, err := d.PaginateWithSelect(limit, page).Decode(x).Find()
+
+	return paginatedData.Pagination, handleErrors(PAGINATE, err)
+
+}
 
 func (d *Document) Get() *mongo.SingleResult {
 	opts := options.FindOne().SetProjection(d.fields)
 	return d.collection.FindOne(context.TODO(), d.filter, opts)
-}
-
-func (d *Document) Paginate(limit, page int64, x any) paginate.PaginationData {
-
-	paginatedData, err := d.PaginateWithSelect(limit, page).Decode(x).Find()
-	handleErrors(PAGINATE, err)
-	return paginatedData.Pagination
-
 }
 
 // check if docs already saved in database
@@ -98,22 +97,22 @@ func (d *Document) CheckSaved() bool {
 	return true
 }
 
-func (d *Document) Save() int {
+func (d *Document) Save() Error {
 	_, err := d.collection.InsertOne(context.TODO(), d.data)
 	return handleErrors(SAVE, err)
 }
 
-func (d *Document) Update() int {
+func (d *Document) Update() Error {
 	_, err := d.collection.UpdateOne(context.TODO(), d.filter, d.dUpdate)
 	return handleErrors(UPDATE, err)
 }
 
-func (d *Document) Delete() int {
+func (d *Document) Delete() Error {
 	_, err := d.collection.DeleteOne(context.TODO(), d.filter)
 	return handleErrors(DELETE, err)
 }
 
-func (d *Document) Incr(key string, value string) int {
+func (d *Document) Incr(key string, value string) Error {
 	q := Query{
 		QType: QInc,
 		Kv:    KV{Key: key, Value: value},
